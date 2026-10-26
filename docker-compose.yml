@@ -1,0 +1,41 @@
+services:
+  opencode:
+    build:
+      context: .
+      args:
+        USER_ID: ${LOCAL_UID:-1000}
+        GROUP_ID: ${LOCAL_GID:-1000}
+    image: ai-antennas-opencode:local
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      HOME: /home/opencode
+      OPENCODE_CONFIG: /config/opencode.json
+      XDG_CONFIG_HOME: /home/opencode/.local/share/opencode/config
+      XDG_DATA_HOME: /home/opencode/.local/share/opencode/data
+      XDG_STATE_HOME: /home/opencode/.local/share/opencode/state
+      XDG_CACHE_HOME: /tmp/opencode-cache
+      LOCAL_MODEL: ${LOCAL_MODEL:-}
+      LOCAL_CONTEXT_SIZE: ${LOCAL_CONTEXT_SIZE:-16384}
+      LOCAL_GPU_LAYERS: ${LOCAL_GPU_LAYERS:-999}
+    volumes:
+      - ./workspace:/workspace:rw
+      - ./opencode.json:/config/opencode.json:ro
+      - ./models:/models:rw
+      - opencode-state:/home/opencode/.local/share/opencode
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    gpus: all
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 1024
+    mem_limit: 24g
+    memswap_limit: 32g
+    stop_grace_period: 15m
+
+volumes:
+  opencode-state:

@@ -1,0 +1,4 @@
+.env
+models/
+workspace/
+!workspace/AGENTS.md

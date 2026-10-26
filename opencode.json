@@ -1,0 +1,106 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "google/gemini-3.8-flash",
+  "share": "disabled",
+  "update": "notify",
+  "instructions": ["/workspace/AGENTS.md"],
+  "permissions": [
+    {
+      "action": "*",
+      "resource": "*",
+      "effect": "allow"
+    }
+  ],
+  "providers": {
+    "google": {
+      "settings": {
+        "apiKey": "{env:GEMINI_API_KEY}",
+        "timeout": 900000,
+        "chunkTimeout": 900000
+      },
+      "models": {
+        "gemini-3.8-flash": {
+          "name": "Gemini 3.8 Flash",
+          "capabilities": {
+            "tools": true,
+            "input": ["text", "image", "audio", "video", "pdf"],
+            "output": ["text"],
+            "temperature": true,
+            "reasoning": { "supported": true, "toggle": true }
+          },
+          "limit": { "context": 1048576, "output": 65536 }
+        }
+      }
+    },
+    "openrouter-free": {
+      "name": "OpenRouter Free",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_API_KEY}",
+        "timeout": 900000,
+        "chunkTimeout": 900000
+      },
+      "models": {
+        "deepseek-r1-free": {
+          "modelID": "deepseek/deepseek-r1:free",
+          "name": "DeepSeek R1 Free (OpenRouter)",
+          "capabilities": {
+            "tools": false,
+            "input": ["text"],
+            "output": ["text"],
+            "temperature": true,
+            "reasoning": { "supported": true }
+          },
+          "limit": { "context": 16384, "output": 8192 }
+        }
+      }
+    },
+    "local-deepseek": {
+      "name": "Local DeepSeek (llama.cpp)",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://127.0.0.1:8080/v1",
+        "apiKey": "not-required",
+        "timeout": 900000,
+        "chunkTimeout": 900000
+      },
+      "models": {
+        "coder": {
+          "modelID": "local-deepseek-coder",
+          "name": "DeepSeek Coder 6.7B Instruct Q4_K_M (local)",
+          "capabilities": {
+            "tools": false,
+            "input": ["text"],
+            "output": ["text"],
+            "temperature": true
+          },
+          "limit": { "context": 16384, "output": 4096 }
+        },
+        "r1": {
+          "modelID": "local-deepseek-r1",
+          "name": "DeepSeek-R1-Distill-Qwen-7B Q4_K_M (local)",
+          "capabilities": {
+            "tools": false,
+            "input": ["text"],
+            "output": ["text"],
+            "temperature": true,
+            "reasoning": { "supported": true }
+          },
+          "limit": { "context": 16384, "output": 4096 }
+        },
+        "qwen-coder": {
+          "modelID": "local-qwen-coder",
+          "name": "Qwen2.5-Coder-7B-Instruct Q4_K_M (local, tools)",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"],
+            "temperature": true
+          },
+          "limit": { "context": 8192, "output": 4096 }
+        }
+      }
+    }
+  }
+}
