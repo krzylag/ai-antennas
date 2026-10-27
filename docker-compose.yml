@@ -21,9 +21,9 @@ services:
       LOCAL_GPU_LAYERS: ${LOCAL_GPU_LAYERS:-999}
     volumes:
       - ./workspace:/workspace:rw
-      - ./opencode.json:/config/opencode.json:ro
+      - ./config/opencode.json:/config/opencode.json:ro
       - ./models:/models:rw
-      - opencode-state:/home/opencode/.local/share/opencode
+      - ./sessions:/home/opencode/.local/share/opencode:rw
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -36,6 +36,3 @@ services:
     mem_limit: 24g
     memswap_limit: 32g
     stop_grace_period: 15m
-
-volumes:
-  opencode-state:

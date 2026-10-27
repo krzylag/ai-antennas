@@ -1,5 +1,6 @@
 .env
 models/
+sessions/
 workspace/*
 !/workspace/AGENTS.md
 !/workspace/AGENTS.PARTS.md

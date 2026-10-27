@@ -1,6 +1,6 @@
 # Isolated OpenCode for antenna work
 
-This project runs OpenCode, `xnec2c`/`nec2c`, and optional local DeepSeek GGUF models inside an Ubuntu 24.04 container. OpenCode can modify only the mounted `./workspace` directory; its editable model cache is `./models`. The image has no Docker socket, host filesystem mount, extra Linux capabilities, or privilege escalation path.
+This project runs OpenCode, `xnec2c`/`nec2c`, and optional local DeepSeek GGUF models inside an Ubuntu 24.04 container. Its writable host directories are `./workspace`, the model cache in `./models`, and persistent OpenCode data in `./sessions`. The image has no Docker socket, broad host filesystem mount, extra Linux capabilities, or privilege escalation path.
 
 ## Start
 
@@ -52,4 +52,21 @@ Write NEC input files and outputs under `workspace/`. `xnec2c` and `nec2c` are i
 
 Edit `opencode.json` from this project to change models, capabilities, or limits. It is mounted read-only as `/config/opencode.json`; OpenCode receives full tool permissions *inside* its container but cannot change that configuration at runtime. Quit and restart OpenCode after every configuration change, since it reads configuration at startup.
 
-The `workspace/`, `models/`, `.env`, and OpenCode state volume intentionally survive rebuilds. `workspace/` and `models/` are ignored by Git. The container retains network access for cloud providers and on-demand downloads. Network access is required for those features and is not a host filesystem escape boundary.
+The `workspace/`, `models/`, `.env`, and `sessions/` paths intentionally survive rebuilds. `workspace/`, `models/`, and `sessions/` are ignored by Git. The container retains network access for cloud providers and on-demand downloads. Network access is required for those features and is not a host filesystem escape boundary.
+
+### Persistent session history
+
+The local `./sessions` directory is mounted at `/home/opencode/.local/share/opencode`. It stores all persistent OpenCode data, including session history, configuration, and state. Keep the existing XDG paths: data is stored under `sessions/data/opencode`, configuration under `sessions/config/opencode`, and state under `sessions/state/opencode`. Rebuilding the image, removing a container, or running `docker compose down --volumes` does not delete this host directory. To back it up, exit all OpenCode instances first, then copy the entire `sessions/` directory. It may contain credentials and conversation content; do not commit it.
+
+If upgrading from the previous named volume, exit all OpenCode instances before copying the old data into an empty `sessions/` directory. In the WSL2 shell:
+
+```bash
+mkdir -p sessions
+docker volume ls --filter label=com.docker.compose.volume=opencode-state
+docker run --rm --network none --entrypoint bash \
+  -v ai-antennas_opencode-state:/old-state:ro \
+  -v "$(pwd)/sessions:/sessions" \
+  ai-antennas-opencode:local -c 'cp -R /old-state/. /sessions/'
+```
+
+Replace `ai-antennas_opencode-state` with the existing volume name from the listing if your Compose project has a different name. Retain the old volume until you have confirmed that OpenCode can list and resume historical sessions from `sessions/`.
