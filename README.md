@@ -5,16 +5,41 @@ This project runs OpenCode, `xnec2c`/`nec2c`, and optional local DeepSeek GGUF m
 ## Start
 
 1. Copy `.env.example` to `.env` and fill at least `GEMINI_API_KEY`. The `LOCAL_<MODEL>_FILE`, `LOCAL_<MODEL>_URL`, and `LOCAL_<MODEL>_ALIAS` groups define each local model; modify those values in `.env` to use a different GGUF source or filename.
-2. Build and open the TUI:
+2. Pull the published image and open the TUI:
 
 ```bash
-docker compose build
+docker compose pull
 docker compose run --rm opencode
 ```
 
 Use `/models` in OpenCode to select a configured provider. The default is `google/gemini-3.8-flash`.
 
 On Windows 11, run these commands in a WSL2 shell with Docker Desktop's WSL integration and the NVIDIA Container Toolkit support enabled. Docker Desktop must be able to run `docker run --gpus all nvidia/cuda:12.8.1-runtime-ubuntu24.04 nvidia-smi`.
+
+## Building and publishing the image
+
+Compose uses `ciemnyzenek/ai-antennas-opencode:latest` from Docker Hub and always checks for the latest image when starting the service. To build the image locally, use GNU Make from a WSL2 shell or another environment with Make and Docker installed:
+
+```bash
+make build
+```
+
+By default, this builds `ciemnyzenek/ai-antennas-opencode:latest`. You can build a versioned tag and optionally tag that image as `latest`:
+
+```bash
+make build TAG=1.0.0
+make tag SOURCE_TAG=1.0.0 TAG=latest
+```
+
+Push a tag after building it. Docker Hub authentication is intentionally not handled by the Makefile; log in separately with `docker login` before pushing:
+
+```bash
+docker login
+make push TAG=1.0.0
+make push TAG=latest
+```
+
+The Makefile accepts `IMAGE`, `TAG`, `SOURCE_TAG`, `LOCAL_UID`, and `LOCAL_GID` overrides. For example, set `LOCAL_UID` and `LOCAL_GID` to your Linux user and group IDs when building on Linux.
 
 ## API keys and free tiers
 
@@ -66,7 +91,7 @@ docker volume ls --filter label=com.docker.compose.volume=opencode-state
 docker run --rm --network none --entrypoint bash \
   -v ai-antennas_opencode-state:/old-state:ro \
   -v "$(pwd)/sessions:/sessions" \
-  ai-antennas-opencode:local -c 'cp -R /old-state/. /sessions/'
+  ciemnyzenek/ai-antennas-opencode:latest -c 'cp -R /old-state/. /sessions/'
 ```
 
 Replace `ai-antennas_opencode-state` with the existing volume name from the listing if your Compose project has a different name. Retain the old volume until you have confirmed that OpenCode can list and resume historical sessions from `sessions/`.

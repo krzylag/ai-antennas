@@ -39,16 +39,27 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash \
+        admesh \
         ca-certificates \
         curl \
         file \
+        fonts-dejavu-core \
         git \
         gnuplot-nox \
+        imagemagick \
         jq \
         less \
+        librsvg2-bin \
         nano \
         nec2c \
+        openscad \
+        prusa-slicer \
         python3 \
+        python3-matplotlib \
+        python3-numpy \
+        python3-pil \
+        python3-pip \
+        python3-venv \
         procps \
         ripgrep \
         sudo \
@@ -61,6 +72,9 @@ RUN apt-get update \
     && printf '%s\n' 'opencode ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/opencode \
     && chmod 0440 /etc/sudoers.d/opencode \
     && visudo -cf /etc/sudoers.d/opencode
+
+RUN python3 -m venv /opt/cad \
+    && /opt/cad/bin/pip install --no-cache-dir numpy trimesh manifold3d
 
 RUN export HOME=/root \
     && if [ -n "${OPENCODE_VERSION}" ]; then \

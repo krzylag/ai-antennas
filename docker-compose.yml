@@ -1,11 +1,7 @@
 services:
   opencode:
-    build:
-      context: .
-      args:
-        USER_ID: ${LOCAL_UID:-1000}
-        GROUP_ID: ${LOCAL_GID:-1000}
-    image: ai-antennas-opencode:local
+    image: ciemnyzenek/ai-antennas-opencode:latest
+    pull_policy: always
     env_file:
       - path: .env
         required: false
